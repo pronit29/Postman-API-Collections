@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "21ddee35-db6b-4f62-bfb7-42ec2281c670",
+		"name": "Workflow with External Files",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22118786"
+	},
+	"item": [
+		{
+			"name": "Generate Reference",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.globals.set(\"referenceID\",jsonData.uuid);\r",
+							"var reference = pm.globals.get(\"referenceID\");\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "httpbin.org/uuid",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"uuid"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();\r",
+							"\r",
+							"if(pm.iterationData.get(\"isValid\"))\r",
+							"{\r",
+							"    pm.test(\"Should contain the reference id\", function () {\r",
+							"    pm.expect(response.json.referenceId).to.eql(pm.globals.get(\"referenceID\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Should contain the customer id\", function () {\r",
+							"    pm.expect(response.json.customerId).to.eql(pm.iterationData.get(\"customerId\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Should contain the product id\", function () {\r",
+							"    pm.expect(response.json.productId).to.eql(pm.iterationData.get(\"productId\"));\r",
+							"});\r",
+							"}\r",
+							"else\r",
+							"{\r",
+							"    pm.test(\"Data set not valid\", function () {\r",
+							"    pm.expect(response.json).to.be.null;\r",
+							"});\r",
+							"}\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"referenceId\": \"{{referenceID}}\",\r\n    \"customerId\": {{customerId}},\r\n    \"productId\": {{productId}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "httpbin.org/post",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check Status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is \" + pm.iterationData.get(\"expectedStatus\"), function () {\r",
+							"    pm.response.to.have.status(pm.iterationData.get(\"expectedStatus\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "httpbin.org/status/{{status}}",
+					"host": [
+						"httpbin",
+						"org"
+					],
+					"path": [
+						"status",
+						"{{status}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
