@@ -7,7 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "Generate Reference",
+			"name": "My First Request",
 			"event": [
 				{
 					"listen": "test",
